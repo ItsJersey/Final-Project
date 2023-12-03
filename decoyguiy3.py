@@ -174,10 +174,10 @@ try:
 except mysql.connector.Error as e:
     print("Error connecting to the database:", e)
 
+
 # Another Window for Updating the data
 class UpdateWindow(tk.Toplevel):
     def __init__(self, root, selected_item):
-
         def check_changed():
             if self.check_var.get() == 1:
                 self.booster_combobox.config(state='enabled')
@@ -191,9 +191,11 @@ class UpdateWindow(tk.Toplevel):
             updated_last_name = self.last_name_entry.get()
             updated_sex = self.sex_combobox.get()
             updated_vaccine = self.vaccine_combobox.get()
-            updated_booster = self.booster_combobox.get()
-            updated_vaccine_schedule = self.booster_schedule_calendar.get_date()
-            updated_booster_schedule = self.booster_schedule_calendar.get_date()
+            updated_booster = self.booster_combobox.get() if self.check_var.get() else "None"
+            updated_vaccine_schedule = self.vaccine_schedule_calendar.get_date()
+            updated_booster_schedule = (
+                self.booster_schedule_calendar.get_date() if self.check_var.get() else "None"
+            )
 
             try:
                 conn = mysql.connector.connect(
@@ -205,10 +207,12 @@ class UpdateWindow(tk.Toplevel):
                 cursor = conn.cursor()
                 update_query = """
                     UPDATE tb_users
-                    SET first_name = %s, last_name = %s, sex = %s, vaccine = %s, booster_shot = %s, vaccine_schedule = %s, booster_schedule = %s, WHERE Patient_Number = %s
+                    SET first_name = %s, last_name = %s, sex = %s, vaccine = %s, booster_shot = %s, vaccine_schedule = %s, booster_schedule = %s
+                    WHERE Patient_Number = %s
                 """
                 cursor.execute(update_query, (
-                updated_first_name, updated_last_name, updated_sex, updated_vaccine, updated_booster, updated_vaccine_schedule, updated_booster_schedule, self.primary_key))
+                    updated_first_name, updated_last_name, updated_sex, updated_vaccine, updated_booster,
+                    updated_vaccine_schedule, updated_booster_schedule, self.primary_key))
                 conn.commit()
                 messagebox.showinfo(title="Success", message="Data updated successfully")
                 self.destroy()
@@ -220,6 +224,9 @@ class UpdateWindow(tk.Toplevel):
 
         def destroy_self():
             self.destroy()
+
+
+
 
         tk.Toplevel.__init__(self, root)
         self.title("Update Window")
@@ -465,13 +472,13 @@ gender_combobox_label = Label(search_frame, font=('Arial', '9', 'bold'), bg='dee
 gender_combobox_label.grid(row=0, column=1, padx=10, pady=5)
 
 gender_combobox = ttk.Combobox(search_frame, values=["All", "Male", "Female"])
-gender_combobox.grid(row=1, column=0, padx=10, pady=5)
+gender_combobox.grid(row=0, column=2, padx=10, pady=5)
 gender_combobox.set("All")
 
 
 #Search button for both name and gender
 search_button = Button(search_frame, text="Search", command=search_database,font=('Arial','9','bold') ,bg='cyan4',fg='white')
-search_button.grid(row=0, column=1, padx=10, pady=5)
+search_button.grid(row=0, column=3, padx=10, pady=5)
 
 
 
@@ -494,6 +501,3 @@ update_button = Button(search_frame, text="Update", command=update_row,font=('Ar
 update_button.grid(row=2, column=0, padx=10, pady=5, sticky="news")
 
 root.mainloop()
-
-
-
